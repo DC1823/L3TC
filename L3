@@ -1,0 +1,84 @@
+from graphviz import Digraph
+def ShuntingYard(exp):
+    #The output queue
+    Output = []
+    #The operator stack
+    Stack = []
+    #Operator precedence
+    Prec = {'(': 1, '|': 2, '.': 3, '?': 4, '*': 4, '+': 4, '^': 5}
+    #Loop through the input a character at a time
+    for c in exp:
+        #c is an operator
+        if c in {'*', '.', '|', '?', '+', '^'}:
+            #Check what is on the stack
+            while Stack and Prec[c] < Prec[Stack[-1]]:
+                #Append operator at the top of the stack to the output queue
+                Output.append(Stack.pop())
+            #Push c to the stack
+            Stack.append(c)
+        elif c == '(':
+            #Push c to the stack
+            Stack.append(c)
+        elif c == ')':
+            while Stack[-1] != '(':
+                #Append operator at the top of the stack to the output queue
+                Output.append(Stack.pop())
+            #Remove open bracket from stack
+            Stack.pop()
+        else:
+            #Push c to the output queue
+            Output.append(c)
+    #Append all operators on the stack to the output queue
+    while Stack:
+        Output.append(Stack.pop())
+    #Convert output list to string
+    return ''.join(Output)
+
+class Nodo:
+    def __init__(self, valor, left=None, right=None):
+        self.valor = valor
+        self.left  = left
+        self.right = right
+        self.ep=[]
+  
+class arbolsintactico:
+    def construir(self, exp):
+        stack = []
+        for c in exp:
+            if c == '*':
+                n = stack.pop()
+                stack.append(Nodo(c, n))
+            elif c == '.':
+                n1 = stack.pop()
+                n2 = stack.pop()
+                stack.append(Nodo(c, n2, n1))
+            elif c == '|':
+                n1 = stack.pop()
+                n2 = stack.pop()
+                stack.append(Nodo(c, n2, n1))
+            elif c == '?':
+                n = stack.pop()
+                stack.append(Nodo(c, n))
+            elif c == '+':
+                n = stack.pop()
+                stack.append(Nodo(c, n))
+            elif c == '^':
+                n = stack.pop()
+                stack.append(Nodo(c, n))
+            else:
+                stack.append(Nodo(c))
+        return stack.pop()
+    def imprimir(self, nodo, nivel=0):
+        if nodo is None:
+            return
+        self.imprimir(nodo.right, nivel + 1)
+        print(' ' * 4 * nivel + '->', nodo.valor)
+        self.imprimir(nodo.left, nivel + 1)
+
+arbol = arbolsintactico()
+exp=input("Ingrese RegEx: ")
+
+exp = ShuntingYard(exp)
+print(exp)
+nodo = arbol.construir(exp)
+arbol.imprimir(nodo)
